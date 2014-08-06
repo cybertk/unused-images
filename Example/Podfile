@@ -1,0 +1,7 @@
+target 'unused-images', :exclusive => true do
+  pod "unused-images", :path => "../"
+end
+
+target 'Tests', :exclusive => true do
+  pod "unused-images", :path => "../"
+end

@@ -1,0 +1,5 @@
+# reference: http://www.objc.io/issue-6/travis-ci.html
+
+language: python
+script:
+- behave

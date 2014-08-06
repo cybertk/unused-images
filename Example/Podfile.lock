@@ -1,0 +1,14 @@
+PODS:
+  - unused-images (0.1.0)
+
+DEPENDENCIES:
+  - unused-images (from `../`)
+
+EXTERNAL SOURCES:
+  unused-images:
+    :path: ../
+
+SPEC CHECKSUMS:
+  unused-images: c368ec331a17c427e8205c7958d421751f2d2619
+
+COCOAPODS: 0.33.1
