@@ -1,6 +1,6 @@
 # unused-images
 
-[![CI Status](http://img.shields.io/travis/cybertk/unused-images.svg?style=flat)](https://travis-ci.org/Quanlong He/unused-images)
+[![CI Status](http://img.shields.io/travis/cybertk/unused-images.svg?style=flat)](https://travis-ci.org/cybertk/unused-images)
 [![Version](https://img.shields.io/cocoapods/v/unused-images.svg?style=flat)](http://cocoadocs.org/docsets/unused-images)
 [![License](https://img.shields.io/cocoapods/l/unused-images.svg?style=flat)](http://cocoadocs.org/docsets/unused-images)
 [![Platform](https://img.shields.io/cocoapods/p/unused-images.svg?style=flat)](http://cocoadocs.org/docsets/unused-images)
