@@ -1,0 +1,96 @@
+#!/usr/bin/env python
+# Copyright (c) 2014 Quanlong. All rights reserved.
+#
+# \author: Quanlong <quanlong.he@gmail.com>
+
+import logging
+import subprocess
+import re
+import optparse
+import sys
+import os
+
+def FindImages():
+    pattern = '.*'
+    image_globs = ['*.png', '*.jpg']
+
+    out, err = subprocess.Popen(
+        ['git', 'grep', '--name-only', '-E', pattern, '--'] + image_globs,
+        stdout=subprocess.PIPE,
+        shell=False).communicate()
+
+    return out.splitlines()
+
+def GetUsages(image, file_globs):
+    # Get image name ref in code, remove image extension and @2x.
+    refer = re.sub(r'(?i)(@2x)?\.(jpg|png)$', '', os.path.basename(image))
+
+    # Regoconize following pattern
+    #   - "image"
+    #   - "image.jpg"
+    #   - "image.jpeg"
+    #   - "image.png
+    refer = '"%s(\.jpg|\.jpeg|\.png)"'
+
+    out, err = subprocess.Popen(
+        ['git', 'grep', '-i', '-H', '-n', '-E', refer, '--'] + file_globs,
+        stdout=subprocess.PIPE,
+        shell=False).communicate()
+
+    logging.info('==> Processing %s' % refer)
+    logging.info(out)
+    return len(out.splitlines())
+
+def RemoveImage(image):
+    out, err = subprocess.Popen(
+        ['git', 'rm', image],
+        stdout=subprocess.PIPE,
+        shell=False).communicate()
+
+def main():
+    parser = optparse.OptionParser(usage=' %prog [-p <project_path>] [-l <log_file>] [-t template]')
+    parser.add_option('-p',
+                      type='string',
+                      action='store',
+                      dest='project_path',
+                      default='.',
+                      metavar='<project_path>',
+                      help='Project path')
+    parser.add_option('-l',
+                      type='string',
+                      action='store',
+                      dest='log_file',
+                      default='',
+                      help='Log file path')
+    parser.add_option('-t',
+                      type='string',
+                      action='store',
+                      dest='template',
+                      default= """\
+/* %(description)s */
+"%(key)s" = "%(localized_value)s";
+
+""",
+                      metavar='<template>',
+                      help='Template string')
+
+    opts, args = parser.parse_args()
+
+    if opts.log_file:
+        logging.basicConfig(filename=opts.log_file, filemode='w', level=logging.DEBUG)
+
+    images = FindImages()
+    removed = 0
+
+    for image in images:
+
+        nusages = GetUsages(image,
+            ['*.storyboard', '*.swift', '*.xib', '*.mm', '*.m', '*.cc', '*.h'])
+        if nusages == 0:
+            RemoveImage(image)
+            removed += 1
+
+    print 'Removed %d images' % removed
+
+if __name__ == '__main__':
+      sys.exit(main())
