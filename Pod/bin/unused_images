@@ -12,10 +12,10 @@ import os
 
 def FindImages():
     pattern = '.*'
-    image_globs = ['*.png', '*.jpg']
+    image_globs = ['*.png', '*.jpg', '*.jpeg']
 
     out, err = subprocess.Popen(
-        ['git', 'grep', '--name-only', '-E', pattern, '--'] + image_globs,
+        ['git', 'ls-files'] + image_globs,
         stdout=subprocess.PIPE,
         shell=False).communicate()
 
@@ -30,7 +30,7 @@ def GetUsages(image, file_globs):
     #   - "image.jpg"
     #   - "image.jpeg"
     #   - "image.png
-    refer = '"%s(\.jpg|\.jpeg|\.png)"'
+    refer = '"%s(\.jpg|\.jpeg|\.png)?"' % refer
 
     out, err = subprocess.Popen(
         ['git', 'grep', '-i', '-H', '-n', '-E', refer, '--'] + file_globs,
@@ -62,17 +62,6 @@ def main():
                       dest='log_file',
                       default='',
                       help='Log file path')
-    parser.add_option('-t',
-                      type='string',
-                      action='store',
-                      dest='template',
-                      default= """\
-/* %(description)s */
-"%(key)s" = "%(localized_value)s";
-
-""",
-                      metavar='<template>',
-                      help='Template string')
 
     opts, args = parser.parse_args()
 
@@ -80,17 +69,20 @@ def main():
         logging.basicConfig(filename=opts.log_file, filemode='w', level=logging.DEBUG)
 
     images = FindImages()
-    removed = 0
+    unused = 0
 
     for image in images:
 
         nusages = GetUsages(image,
             ['*.storyboard', '*.swift', '*.xib', '*.mm', '*.m', '*.cc', '*.h'])
         if nusages == 0:
-            RemoveImage(image)
-            removed += 1
+            # RemoveImage(image)
+            # Xcode accept following format
+            #   <filename>:<linenumber>: error | warn | note : <message>\n
+            print "%s:: warning: %s is unused" % (image, image)
+            unused += 1
 
-    print 'Removed %d images' % removed
+    print '%d unused images' % unused
 
 if __name__ == '__main__':
       sys.exit(main())
